@@ -1,97 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Chatbot - Voice</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Chatbot - Voice Chat</title>
+<style>
+  body {
+    background: #000;
+    color: #fff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0; padding: 20px;
+    text-align: center;
+  }
+  h1 {
+    margin-bottom: 30px;
+  }
+  button {
+    padding: 20px;
+    font-size: 1.5rem;
+    border-radius: 50%;
+    border: none;
+    background: #0af;
+    color: #000;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  button:hover {
+    background: #08c;
+    color: #fff;
+  }
+  #transcript, #response {
+    margin-top: 20px;
+    background: #111;
+    border-radius: 8px;
+    padding: 15px;
+    min-height: 60px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    white-space: pre-wrap;
+    border: 1px solid #444;
+  }
+  .footer-link {
+    margin-top: 30px;
+  }
+  .footer-link a {
+    color: #0af;
+    text-decoration: none;
+  }
+</style>
 </head>
 <body>
-  <header>
-    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="logo" />
-    <h1>Chatbot</h1>
-  </header>
+  <h1>Chatbot - Voice Chat</h1>
+  <button id="micBtn">🎤 Start Listening</button>
 
-  <nav>
-    <a href="/">🗨️ Text Chat</a>
-    <a href="/voice" class="active">🎤 Voice Chat</a>
-  </nav>
+  <div id="transcript" placeholder="Your speech will appear here..."></div>
+  <div id="response"></div>
 
-  <main>
-    <div id="chatbox"></div>
-    <div id="inputArea">
-      <input type="text" id="message" placeholder="Type or speak..." />
-      <button onclick="sendMessage()">Send</button>
-      <button onclick="startVoice()" title="Speak">🎙️</button>
-    </div>
-  </main>
+  <div class="footer-link">
+    <a href="/">Switch to Text Chat</a>
+  </div>
 
-  <footer>
-    <p>© 2025 Nikhil | Groq LLaMA 3 Chatbot</p>
-  </footer>
+<script>
+  const micBtn = document.getElementById("micBtn");
+  const transcriptDiv = document.getElementById("transcript");
+  const responseDiv = document.getElementById("response");
 
-  <script>
-    const chatbox = document.getElementById("chatbox");
-    const messageInput = document.getElementById("message");
+  let recognition;
+  if ('webkitSpeechRecognition' in window) {
+    recognition = new webkitSpeechRecognition();
+  } else if ('SpeechRecognition' in window) {
+    recognition = new SpeechRecognition();
+  } else {
+    alert("Speech Recognition not supported in this browser.");
+  }
 
-    function appendMessage(text, sender) {
-      const p = document.createElement("p");
-      p.classList.add("message", sender === "user" ? "user-msg" : "bot-msg");
+  if (recognition) {
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
 
-      if (text.match(/\.(jpeg|jpg|gif|png)$/)) {
-        const img = document.createElement("img");
-        img.src = text;
-        img.alt = "image";
-        img.className = "chat-image";
-        p.appendChild(img);
-      } else {
-        p.textContent = text;
-      }
+    recognition.onstart = () => {
+      micBtn.textContent = "🎙️ Listening...";
+    };
 
-      chatbox.appendChild(p);
-      chatbox.scrollTop = chatbox.scrollHeight;
-    }
+    recognition.onerror = (event) => {
+      micBtn.textContent = "🎤 Start Listening";
+      alert("Error occurred in recognition: " + event.error);
+    };
 
-    async function sendMessage(text = null) {
-      const message = text || messageInput.value.trim();
-      if (!message) return;
-      appendMessage("You: " + message, "user");
-      messageInput.value = "";
+    recognition.onend = () => {
+      micBtn.textContent = "🎤 Start Listening";
+    };
 
-      const res = await fetch("/ask", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message }),
-      });
-      const data = await res.json();
-      appendMessage("Bot: " + data.reply, "bot");
+    recognition.onresult = (event) => {
+      let speechResult = event.results[0][0].transcript;
+      transcriptDiv.textContent = speechResult;
+      sendMessage(speechResult);
+    };
+  }
 
-      const utterance = new SpeechSynthesisUtterance(data.reply);
-      utterance.lang = "en-IN";
-      speechSynthesis.speak(utterance);
-    }
-
-    function startVoice() {
-      if (!('webkitSpeechRecognition' in window)) {
-        alert('Speech recognition not supported.');
-        return;
-      }
-      const recognition = new webkitSpeechRecognition();
-      recognition.lang = 'en-IN';
-      recognition.interimResults = false;
-      recognition.maxAlternatives = 1;
-
+  micBtn.addEventListener("click", () => {
+    if (recognition) {
       recognition.start();
-
-      recognition.onresult = (event) => {
-        const speechResult = event.results[0][0].transcript;
-        sendMessage(speechResult);
-      };
-
-      recognition.onerror = (event) => {
-        console.error('Speech recognition error', event.error);
-      };
     }
-  </script>
+  });
+
+  async function sendMessage(message) {
+    responseDiv.textContent = "Waiting for response...";
+    const res = await fetch("/ask", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({message})
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      responseDiv.textContent = data.reply;
+      speak(data.reply);
+    } else {
+      responseDiv.textContent = "Error: Could not get response from server.";
+    }
+  }
+
+  function speak(text) {
+    if ('speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-US';
+      window.speechSynthesis.speak(utterance);
+    }
+  }
+</script>
 </body>
 </html>

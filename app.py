@@ -1,5 +1,7 @@
 from flask import Flask, request, jsonify, render_template
-import os, requests, wikipedia
+import os
+import requests
+import wikipedia
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -50,10 +52,4 @@ def ask():
         return jsonify({"reply": "Sorry, there was an error with the AI service."})
 
 if __name__ == "__main__":
-    app.run(debug=True)
-
-
-
-
-
-
+    app.run(debug=False)
