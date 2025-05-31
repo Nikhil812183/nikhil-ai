@@ -3,128 +3,309 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Chatbot - Text Chat</title>
+<title>Nikhil AI Chatbot - Black Theme</title>
 <style>
-  body {
-    background: #000;
-    color: #fff;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0; padding: 20px;
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+  body, html {
+    margin: 0; padding: 0; height: 100%;
+    background: #121212; /* Dark background */
+    color: #e0e0e0; /* Light text */
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
-  .container {
-    max-width: 600px;
-    margin: auto;
+  .chat-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 700px;
+    height: 90vh;
+    background: #1e1e1e; /* Slightly lighter dark */
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.9);
+    overflow: hidden;
   }
-  h1 {
+  header {
+    padding: 1rem;
+    font-weight: 700;
+    font-size: 1.75rem;
+    background: #000000; /* Pure black header */
+    color: #f5f5f7;
     text-align: center;
-    margin-bottom: 30px;
+    user-select: none;
+    letter-spacing: 0.04em;
   }
   #chat {
-    background: #111;
-    padding: 15px;
-    border-radius: 8px;
-    height: 400px;
+    flex-grow: 1;
+    padding: 1rem 1.5rem;
     overflow-y: auto;
-    margin-bottom: 15px;
-    border: 1px solid #444;
+    background: #1a1a1a; /* Slightly lighter black */
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
   }
   .message {
-    margin-bottom: 15px;
-  }
-  .user {
-    color: #0af;
-    font-weight: bold;
-  }
-  .bot {
-    color: #afa;
-  }
-  textarea {
-    width: 100%;
-    height: 60px;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #444;
-    background: #222;
-    color: #fff;
-    resize: none;
+    max-width: 75%;
+    padding: 0.75rem 1rem;
+    border-radius: 18px;
+    line-height: 1.5;
+    position: relative;
+    white-space: pre-wrap;
+    word-wrap: break-word;
     font-size: 1rem;
   }
-  button {
-    margin-top: 10px;
-    width: 100%;
-    padding: 12px;
+  .message.user {
+    background: #333333; /* Dark gray bubble */
+    color: #e0e0e0;
+    align-self: flex-end;
+    border-bottom-right-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+  }
+  .message.bot {
+    background: #282828; /* Slightly lighter dark bubble */
+    color: #dcdcdc;
+    align-self: flex-start;
+    border-bottom-left-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+  }
+  /* Code block style */
+  .code-block {
+    background: #121212; /* Deep black for code */
+    color: #c5c6c7; /* Soft gray code text */
+    padding: 1rem 1.25rem;
+    border-radius: 10px;
+    font-family: 'Source Code Pro', monospace, monospace;
+    font-size: 0.95rem;
+    margin-top: 0.5rem;
+    white-space: pre-wrap;
+    position: relative;
+    box-shadow: inset 0 0 8px #000000;
+  }
+  .copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    background: #444444; /* Dark gray button */
     border: none;
-    border-radius: 8px;
-    background: #0af;
-    color: #000;
-    font-weight: bold;
+    color: #e0e0e0;
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    border-radius: 5px;
     cursor: pointer;
-    font-size: 1.1rem;
+    opacity: 0.85;
+    transition: opacity 0.2s ease, background-color 0.3s ease;
+    user-select: none;
   }
-  button:hover {
-    background: #08c;
-    color: #fff;
+  .copy-btn:hover {
+    opacity: 1;
+    background: #666666; /* Slightly lighter hover */
   }
-  .footer-link {
-    text-align: center;
-    margin-top: 20px;
+  footer {
+    display: flex;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: #222222;
   }
-  .footer-link a {
-    color: #0af;
-    text-decoration: none;
+  #inputMsg {
+    flex-grow: 1;
+    border-radius: 30px;
+    border: 1.5px solid #444444;
+    background: #121212;
+    color: #e0e0e0;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    outline-offset: 2px;
+    transition: border-color 0.3s ease;
+  }
+  #inputMsg::placeholder {
+    color: #666666;
+  }
+  #inputMsg:focus {
+    border-color: #888888;
+    background: #1c1c1c;
+  }
+  #sendBtn, #micBtn {
+    background: #333333;
+    border: none;
+    color: #e0e0e0;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.25rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    user-select: none;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  #sendBtn:hover, #micBtn:hover {
+    background: #555555;
+    box-shadow: 0 0 10px #777777;
+  }
+  #micBtn.recording {
+    background: #b00020; /* Deep red while recording */
+    box-shadow: 0 0 12px #b00020;
   }
 </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Chatbot - Text Chat</h1>
-    <div id="chat"></div>
-    <textarea id="messageInput" placeholder="Type your message..."></textarea>
-    <button onclick="sendMessage()">Send</button>
-    <div class="footer-link">
-      <a href="/voice">Switch to Voice Chat</a>
-    </div>
+  <div class="chat-container" role="main" aria-label="Nikhil AI chatbot interface">
+    <header>Nikhil AI - Text & Voice Chatbot</header>
+    <div id="chat" aria-live="polite" aria-atomic="false" tabindex="0"></div>
+    <footer>
+      <input type="text" id="inputMsg" placeholder="Type your message..." aria-label="Type your message" autocomplete="off" />
+      <button id="sendBtn" aria-label="Send message">➤</button>
+      <button id="micBtn" aria-label="Start voice recognition" title="Start voice recognition">🎤</button>
+    </footer>
   </div>
 
 <script>
-  const chatDiv = document.getElementById("chat");
-  const messageInput = document.getElementById("messageInput");
+  const chat = document.getElementById('chat');
+  const inputMsg = document.getElementById('inputMsg');
+  const sendBtn = document.getElementById('sendBtn');
+  const micBtn = document.getElementById('micBtn');
 
-  function addMessage(text, sender) {
-    const messageDiv = document.createElement("div");
-    messageDiv.classList.add("message", sender);
-    messageDiv.textContent = (sender === "user" ? "You: " : "Bot: ") + text;
-    chatDiv.appendChild(messageDiv);
-    chatDiv.scrollTop = chatDiv.scrollHeight;
+  // Function to escape HTML (to prevent XSS)
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
   }
 
-  async function sendMessage() {
-    const msg = messageInput.value.trim();
-    if (!msg) return;
+  // Function to parse bot response to separate code blocks from normal text
+  // Assumes code blocks are wrapped in triple backticks ``` like markdown
+  function parseBotResponse(text) {
+    const parts = text.split(/```([\s\S]*?)```/);
+    const fragment = document.createDocumentFragment();
 
-    addMessage(msg, "user");
-    messageInput.value = "";
+    for (let i = 0; i < parts.length; i++) {
+      if (i % 2 === 0) {
+        if (parts[i].trim()) {
+          const p = document.createElement('div');
+          p.textContent = parts[i].trim();
+          fragment.appendChild(p);
+        }
+      } else {
+        const codeDiv = document.createElement('pre');
+        codeDiv.className = 'code-block';
+        codeDiv.textContent = parts[i].trim();
 
-    const response = await fetch("/ask", {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({message: msg})
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      addMessage(data.reply, "bot");
-    } else {
-      addMessage("Error: Could not get response from server.", "bot");
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'copy-btn';
+        copyBtn.textContent = 'Copy';
+        copyBtn.title = 'Copy code to clipboard';
+        copyBtn.addEventListener('click', () => {
+          navigator.clipboard.writeText(parts[i].trim()).then(() => {
+            copyBtn.textContent = 'Copied!';
+            setTimeout(() => copyBtn.textContent = 'Copy', 1500);
+          }).catch(() => alert('Failed to copy!'));
+        });
+        codeDiv.appendChild(copyBtn);
+        fragment.appendChild(codeDiv);
+      }
     }
+    return fragment;
   }
 
-  messageInput.addEventListener("keypress", (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+  // Add message bubble to chat
+  function addMessage(text, sender) {
+    const div = document.createElement('div');
+    div.classList.add('message', sender);
+    if (sender === 'bot') {
+      const content = parseBotResponse(text);
+      div.appendChild(content);
+    } else {
+      div.textContent = text;
+    }
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  // Send message to backend
+  async function sendMessage(msg) {
+    if (!msg.trim()) return;
+    addMessage(msg, 'user');
+    inputMsg.value = '';
+    inputMsg.disabled = true;
+    sendBtn.disabled = true;
+    micBtn.disabled = true;
+
+    try {
+      const response = await fetch('/ask', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({message: msg})
+      });
+      const data = await response.json();
+      addMessage(data.reply || 'No response from bot.', 'bot');
+    } catch {
+      addMessage('Error: Unable to contact server.', 'bot');
+    }
+    inputMsg.disabled = false;
+    sendBtn.disabled = false;
+    micBtn.disabled = false;
+    inputMsg.focus();
+  }
+
+  // Handle send button click
+  sendBtn.addEventListener('click', () => {
+    sendMessage(inputMsg.value);
+  });
+
+  // Send message on Enter key
+  inputMsg.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
       e.preventDefault();
-      sendMessage();
+      sendMessage(inputMsg.value);
     }
   });
+
+  // Voice recognition setup
+  let recognition;
+  let listening = false;
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    micBtn.disabled = true;
+    micBtn.title = "Speech Recognition not supported";
+  } else {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+      listening = true;
+      micBtn.classList.add('recording');
+      micBtn.setAttribute('aria-pressed', 'true');
+      micBtn.title = "Stop voice recognition";
+    };
+    recognition.onend = () => {
+      listening = false;
+      micBtn.classList.remove('recording');
+      micBtn.setAttribute('aria-pressed', 'false');
+      micBtn.title = "Start voice recognition";
+    };
+    recognition.onerror = (event) => {
+      alert('Speech recognition error: ' + event.error);
+    };
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript.trim();
+      addMessage(transcript, 'user');
+      sendMessage(transcript);
+    };
+  }
+
+  // Mic button toggles speech recognition
+  micBtn.addEventListener('click', () => {
+    if (listening) {
+      recognition.stop();
+    } else {
+      recognition.start();
+    }
+  });
+
 </script>
 </body>
 </html>
