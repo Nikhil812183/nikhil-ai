@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: nikhil-ai-chatbot
+    env: python
+    plan: free
+    buildCommand: pip install flask requests gunicorn
+    startCommand: gunicorn app:app
+    autoDeploy: true
